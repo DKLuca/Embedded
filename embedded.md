@@ -333,3 +333,159 @@ e b = 2^-8
 il risultato atteso è 1, ma il risultato effettivo sarà 1 ma non è rappresentabile con 8 bit con la virgola a sx, quindi per il risultato sarebbe necessaria una posizione in più. La posizione della virgola cambia lungo il datapath a seconda dell'operazione che si sta effettuando.
 
 Se voglio rappresentare numeri negativi, uso il complemento a 2. Il primo bit sarà -2^0 e gli altri 
+
+## MANCA UN PEZZO
+
+## Sequential Logics
+
+è conveniente strutturare il programma a livello gerarchico per facilitare la lettura e la manutenzione del codice. In VHDL, si possono utilizzare entità e architetture per creare moduli gerarchici, mentre in SystemVerilog si possono utilizzare moduli e interfacce. 
+
+Conviene non forzare la sintesi di tutti gli elementi come ad esempio i sommatori, in quanto i sintetizzatori moderni sono in grado di ottimizzare il circuito in modo efficiente. Forzare la sintesi di tutti gli elementi può portare a un aumento del numero di gate e a una riduzione delle prestazioni del circuito. 
+
+Il comportamento è descritto tramite logica sequeziale. Ci sono degli idiomi utili per la sintesi che corrispondono a uno specifico circuito sequenziale; altri stili di programmazione possono portare a errori nei circuiti sintetizzati. Una buona pratica è usare il nome `clk` per il clock 
+
+### Register
+
+La maggior parte è creato usando dei flip flop edge-triggered tipo D.
+
+```vhdl
+process (clk) begin --se c'è una variazione di clock
+    if clk'event and clk = '1' then --fronte di salita
+    q <= d; --metto l'uscita uguale all'ingresso (ovvero d)
+    --statement concorrente
+    end if;
+```
+Tutto il process viene valutato alla variazione degli ingressi (non è un'esecuzione)
+
+Questo codice non dice cosa fare quando il `clk` è 1 o 0, perché è un registro? Non specificando tutte le condizioni dell'if, mantiene il valore tramite un registro perché tiene il valore precedente.
+
+```vhdl
+RISING_EDGE (clk) = clk'event and clk = '1'
+```
+
+in system verilog:
+
+```verilog
+always_ff @(posedge clk)
+    q <= d; //definisce il nonblocking assignment
+```
+
+`always_ff` è usato come `always` ma esclusivamente per i flip flop per ridurre gli errori
+```verilog
+(always @(sensitivity vist))
+
+(always_latch (funziona sul livello))
+
+(always_comb (funzione combinatoria, non basata sul clock))
+```
+
+### Resettable Register
+
+Per avere lo stessa uscita per gli stessi ingressi bisogna che il flipflop parta da uno stato zero (con reset) se lo stato è molto importante. Es. il program counter è necessario che parta dallo stesso valore ogni volta.
+
+```vhdl
+process (clk) begin
+    if clk'event and clk = '1' then
+        if reset = '1' then --reset positivo alto e sincrono
+            q <= (others => '0');
+        else
+            q <= d;
+        end if;
+    end if;
+end process;
+```
+
+Solitamente si usano i reset sincroni perché sono `bound` al `clk`. 
+
+```verilog
+always_ff @(posedge clk)
+    if (reset) q <= 4'b0;
+    else q <= d;
+```
+
+Se non lo voglio sincrono il reset:
+```vhdl
+process (clk, reset) begin
+    if reset = '1' then --reset positivo alto
+            q <= (others => '0');
+    if clk'event and clk = '1' then
+        q <= d;
+    end if;
+end process;
+```
+
+```verilog
+always_ff @(posedge clk, posedge reset)
+    if(reset) <= 4'b0;
+    else q <= d;
+```
+
+Se mi interessa avere un segnale di enable per poter leggere/scrivere solo da un registro:
+```vhdl
+process (clk) begin
+    if clk'event and clk = '1' then
+        if reset = '1' then
+            q <= (others => '0');
+
+```
+### Registri resettabili e con enable
+
+Ho una condizione extra dell'if, non solo else `q <= d` ma `if(enable) q <= d`
+
+Necessità di descrivere la cascata di flipflop, posso definire un segnale interno che prende il valore del primo flip flop e se le condizioni lo richiedono (es enable, es positive edge del clock) copio il valore del segnale interno nel secondo flip flop.
+
+### Transparent Latch
+Non è opportuno usarlo al posto di enable latch in quanto se ho un enable unico, il segnale si propagherebbe su tutti i latch.
+
+Sono costretto a mantenere stabile il valore di ingresso per tutto il periodo di clock e non solo sul fronte. Il transparent latch diventa opaco con il clock basso.
+
+Al posto di basarsi sul fronte di salita, si basa sull'intero clock = 1
+
+In verilog si usa `always_latch` 
+
+## Contatori
+
+```vhdl
+process (clk) begin
+    if clk'event and clk = '1' then
+        if rst = '1' then q_int <=  "0000"; --reset
+            else q_int <= q_int + "0001";
+        end if;
+    end if;
+end process;
+```
+
+Va definito un segnale interno `q_int` in quanto un output non può essere usato come segnale di ingress. `q_int` è quindi una copia del segnale `q`.
+
+```verilog
+always_ff @(posedge clk)
+    if (rst) q <= 4'b0;
+    else q <= q + 1;   
+```
+
+## Shift register
+```verilog
+always_ff @(posedge clk)
+    if (rst) q <= 0;
+    else if (load) q <= d;
+    else q <= {q[2:0], sin}; //sposto a sinistra e inserisco il segnale sin
+
+    assign sout = q[3]; 
+```
+
+
+## Always/Process
+`always` e `process` sono sinonimi, la sensitivity vist indica qual è la lista dei segnali in base ai quali il corpo del process viene valutato
+in vhdl l'assegnazione distingue tra segnali e variabili. Le variabili sono "pezzetti di carta" su cui vado a scrivere. In systemverilog non c'è la differenza e nemmeno il concetto di variabile. L'uguale è non blocking, ciò che conta è solo l'esito finale. Se uso `<=` sono blocking, andrebbe di volta in volta a valutare ciò che accade dopo. Se scrivo con uguale vengono valutati tutti
+
+Se vogliamo la valutazione sincrona, uso `<=`, altrimenti uso `=`
+
+L'assegnazione con <= "termina" fino alla prossima riattivazione 
+
+Il process intero è uno statement concorrente, tutte le istruzioni vengono viste come un unico statement concorrente.
+## Memoria
+Le memorie normalmente sono organizzate a byte. Una cella di memoria sarà "doppia" divisa tra parte alta e parte bassa. Il micro processore che ha un bus dati e uno di indirizzi di dimensione es 16, avrò due connessioni ai due byte di memoria (8 + 8) in cui i primi 8 li porto sul byte più basso e gli altri su quello più alto.
+
+Supponiamo che la cella di memoria sia 2^N con N dimensione del bus di indirizzi, il bus arriverà ad entrambi i banchi di memoria e tramite i bit che si scrivono sui bus, accedo a uno specifico indirizzo di memoria.
+
+Supponendo che gli indirizzi nel banco di memoria siano 2^N-1, Ciascun banco di memoria occuperà la metà. Supponiamo di aggiungere altri due banchi di dimensione sempre 2^N-1. Se scrivo tutti zeri, scrivo nella prima posizione di tutti e 4 i banchi. Ho la memoria piena ma uso la metà. Ho un bit extra nell'indirizzo di memoria e uso quello per indicare quale parte abilitare (0 o 1) tramite un processo di decodifica. Verrà più complesso a seconda del numero di banchi da decodificare (maggiori se la dimensione del singolo è piccola)
