@@ -1,0 +1,35 @@
+Infineon è una delle grandi multinazionali nel mondo dei semiconduttori. Infineon leader mondiale per le applicazioni automotive, power discretes and modules (singoli elementi di potenza), microcontroller suppliers. 
+Mega trend globali che interessano all’azienda (PRODUCT RELATED):
+-	Industrial and power: continuo incremento di richiesta di energia elettrica con associato problema di CO2. Esplosione di Ai and machine learning, incremento continuo delle dimensioni dei datacenter
+-	Automotive: auto che si guidano da sole (sensoristica, capacità di calcolo, etc.), veicoli elettrici (gestione delle potenze), architetture di auto nuove (riconfigurazione via sw e la trasmissione dei dati all’interno dell’auto (rete internet?)).
+-	Consumer: IoT, Non si vuole usare le chiavi dell’auto ma avvicinarsi e l’auto ci può riconoscere in maniera sicura, Robotics
+(NON PRODUCT RELATED)
+-	Cicli economici (sale e scende, bisogna sopravvivere ai down), Accaparrarsi elementi per il futuro dell’azienda (nuovi studenti), Guerra economica tra Cina e USA
+La continua crescita di domanda di energia elettrica nel pianeta è dovuta alla continua crescita della popolazione, migliori condizioni di vita in alcuni paesi e l’esplosione di ICT. 
+Prima di facevano i wafer in silicio, ora in silicon carbide (SiC)
+
+Autonomous driving: nel 2009 ci fu la prima auto a guida autonoma. Usava un radar per potersi pilotare. Si parlava inizialmente di macchine di lusso in quanto la tecnologia era molto costosa, ora si usa in tutte le auto. Nel futuro si punta alle auto con guida autonoma con 5 radar, uno frontale e 4 sugli angoli.
+
+I chip radar sono un sistema radio che fornisce un’immagine elettronica ai un microprocessore che decide cosa farci. L’immagine elettronica è generata tramite un trasmettitore che genera una frequenza portante (77GHz), modulata in frequenza e implementate delle rampe in frequenza. Il radar si chiama continuous wave, fornisce un’onda continua ma con rampe di frequenze.
+La scena viene illuminata, parte della potenza emessa torna al ricevitore quando trova un ostacolo. C’è una differenza di frequenza tra il trasmesso e il ricevuto, la differenza è direttamente proporzionale alla distanza (ora si può arrivare a ~200m). Si digitalizza la banda base risultante dalla differenza tramite un ADC. Ogni riga che rappresenta la potenza ricevuta in base alla frequenza indica gli ostacoli con la loro distanza indicativa. Si continua il campionamento nel tempo, se le linee spettrali si avvicinano a 0 con la stessa velocità, si tratta di oggetti fermi (alberi, pali), se stanno fermi hanno la nostra velocità, se si avvicinano con v>vnostra sono auto nel senso opposto. 
+
+Con l’incremento della capacità di calcolo (microcontrollore unico centrale) si può fare il computing centrale di molti sensori e non fare il computing assieme al sensore in un chip singolo. 
+Se il generatore di frequenza è ideale, idealmente genera righe spettrali, lo spettro esce con linee verticali con potenze proporzionali alla distanza.
+Non essendo componenti ideali, ci sono parti di rumore che possono oscurare altre bande del segnale e si deve evitare di coprirle e individuarle tutte.
+
+L’ADC genera delle linee spettrali extra dovute alla non linearità che vengono definiti “ghost target” 
+
+Primi al mondo nel security Ics e MEMS microphones composti da una membrana di silicio e un chip di read-out. La membrana vibra con il suono ed è un sensore capacitivo: ricostruisce il segnale energetico dal suono. Due microfoni davanti: background noise + voce e background noise. Dietro c’è il microfono più performante es per registrare i concerti, non voglio sentire un suono saturato. Ha il dynamic range migliore al mondo. (MEMS micro-oggetti meccanici che simulano componenti elettrici)
+
+
+Bluetooth radio in continua evoluzione. Migliorare il consumo, calcolare la distanza tra due nodi per usare una potenza diversa (channel sounding)
+
+Sensore ottico tridimensionale: Time of flight usato per il riconoscimento facciale. Interessante perché si possono vedere i componenti del chip. Ogni pixel è un mixer fotonico, si riesce a discriminare la distanza dell’oggetto che riflette la luce. È importante che sia 3D o basterebbe una foto (come nel video di Rovazzi (fondamentale dice Nick (quale video? Non lo so)))
+Convertono il segnale analogico captato dal singolo pixel. Viene fatta una prima elaborazione e poi portato il segnale in output.
+
+4 Business unit:
+-	Automotive: suddiviso in business line basato sui componenti prodotti. Ad esempio tutti i componenti per il controllo del cruscotto, gestione delle luci etc. Business Line Ethernet Solution. Business Line High Volt. Power train delle macchine elettriche
+-	Power and sensor system
+o	Organizzazioni funzionali distribuite in tutto il mondo 
+-	…
+Esiste un’organizzazione che testa e verifica che il risultato finale sia in linea con le caratteristiche e le aspettazioni.  
